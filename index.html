@@ -172,7 +172,6 @@ footer{border-top:1px solid #e5e7eb;padding:20px 0;margin-top:20px;font-size:.78
 
    <div class="ctl"><label>GPU Type</label><select id="gpu"></select>
     <div class="lede">Median rate across providers.</div>
-    <div id="gpuNote"></div>
     <details class="guide"><summary>Guidance</summary><div class="help"><b>In plain terms.</b> If you run the model yourself, you rent machines by the hour. This picks which machine. The figures in brackets are what a cluster of GPUs costs for one hour, from two different kinds of landlord &mdash; more on those below.<br><br><b>Some key assumptions.</b><br><br><i>You cannot lease a fraction of a machine.</i> A model has to fit entirely in one machine's memory, or be spread across several &mdash; hence the notion of a cluster. That minimum &mdash; one, two, four, eight machines &mdash; is set by the model's size, not by your demand. Below it you cannot go, however little you use it.<br><br><i>Growth adds whole units.</i> When demand outgrows one set of machines you rent a second identical set. There is no half-step. <b>This is a step-fixed cost</b>, and it behaves exactly as you would expect one to: flat, then a jump, then flat again.<br><br><i>You pay for the month, not the usage.</i> Rent a machine and it is yours for the period whether it runs at 90% or 9%.<br><br><b>Two types of landlord.</b><table class="gtab"><tr><td>Neocloud</td><td>Specialist GPU rental firms &mdash; Lambda, RunPod, CoreWeave.</td></tr><tr><td>Hyperscaler</td><td>AWS, Azure, Google Cloud.</td></tr></table>You are not being asked to choose &mdash; both are charted, so you can see the gap. The premium buys things that may already matter to you: an existing contract and committed spend, procurement and security sign-off already done, and the same compliance posture as the rest of your estate.<br><br><b>Where our numbers come from.</b> All rates are published list prices for on-demand rental, collected 26&ndash;27 August 2026. Where several firms rent the same machine we take the <b>median</b>.<br><br><b>Careful.</b> Two traps.<br><br><i>These prices move fast.</i><br><br><i>The cross-over point &mdash; when two options have the same total cost &mdash; is not permanent.</i> The marker on the chart is the <b>first</b> volume at which one option crosses another. Because cost moves in steps, adding the next cluster of machines can push you back above the API line before scale pulls you down again. Read the curves, not just the marker.<br><br><b>Check our arithmetic.</b> The table below derives the machine cost from your current inputs.<div id="gpuWork"></div></div></details></div>
 
    <div class="ctl"><label>Infrastructure Overhead</label>
@@ -1692,22 +1691,12 @@ function update(){
   {label:"Cost of errors",data:dRw,backgroundColor:"#c4b5fd"}];
  cBrk.update("none");
 
- // fleet shape at the selected volume: what you actually rent, and how idle it sits
- var gn=document.getElementById("gpuNote");
- if(gn){
-  if(n){
-   var inf=p.o.tp[p.gpu], u=Math.round(n.util*100);
-   var tone=(n.util<0.35)?'style="background:#fef3c7;border-color:#fde68a;color:#92400e"':'';
-   gn.innerHTML='<div class="warn" '+tone+'><b>At this volume you rent '+n.n+' GPU'+(n.n===1?'':'s')+'</b> &mdash; '
-    +n.clusters+' cluster'+(n.clusters===1?'':'s')+' of '+inf.g+'&times; '+p.gpu
-    +(p.ha?' (doubled for high availability)':'')
-    +', running at about <b>'+u+'% utilisation</b>. You pay for all of it for the whole month.'
-    +(n.util<0.35?' Most of that capacity is idle: this is the step-function penalty, and it is why the self-hosted line jumps rather than slopes.':'')
-    +(inf.note?'<br><span class="muted">'+inf.note+'</span>':'')
-    +((function(){var sp=GPUSPEC[p.gpu],ms=MSIZE[p.o.label];if(!sp||!ms)return '';var need=ms*BPP[(inf.q||'').toUpperCase()],have=sp.vram*inf.g;if(!need||!have)return '';var hd=(have-need)/have;return hd<0.15?'<br><b>Tight fit.</b> Weights occupy '+Math.round((1-hd)*100)+'% of this cluster\'s memory, leaving little for KV cache. It is buildable, but real batch size - and therefore throughput - will sit below the benchmark figure.':'';})())
-    +'</div>';
-  } else { gn.innerHTML=''; }
- }
+ // The live fleet box was removed on 1 Sep 2026 at the author's request.
+ // It carried three disclosures: the provisioned fleet count and its
+ // utilisation, the "fitted not measured" throughput provenance, and the
+ // tight-fit memory warning. All three now appear only inside the GPU
+ // Guidance block, which the reader has to open. Register item D1 was
+ // reopened to record that.
 
  // Show the working. Every figure the self-hosted cost depends on, in the order
  // the engine uses them, so a reader can reproduce the number on paper.
